@@ -1,7 +1,6 @@
 {
  "actions": [],
- "allow_rename": 1,
- "autoname": "SA-.YY.-",
+ "autoname": "format:SA-{YY}-{#####}",
  "creation": "2026-08-06 17:11:35.758982",
  "doctype": "DocType",
  "engine": "InnoDB",
@@ -97,6 +96,7 @@
    "fieldname": "sales_invoice",
    "fieldtype": "Link",
    "label": "Sales Invoice",
+   "no_copy": 1,
    "options": "Sales Invoice",
    "read_only": 1
   },
@@ -108,7 +108,8 @@
   {
    "fieldname": "services",
    "fieldtype": "Table",
-   "options": "Salon Appointment Item"
+   "options": "Salon Appointment Item",
+   "reqd": 1
   },
   {
    "fieldname": "summary_section",
@@ -118,11 +119,11 @@
  "grid_page_length": 50,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-18 13:15:20.733409",
+ "modified": "2026-08-18 14:38:14.624989",
  "modified_by": "Administrator",
  "module": "Salon",
  "name": "Salon Appointment",
- "naming_rule": "Expression (old style)",
+ "naming_rule": "Expression",
  "owner": "Administrator",
  "permissions": [
   {
