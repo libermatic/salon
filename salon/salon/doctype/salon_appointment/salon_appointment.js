@@ -3,13 +3,61 @@
 
 frappe.ui.form.on("Salon Appointment", {
 	refresh(frm) {
-		if (!frm.doc.sales_invoice && frm.doc.docstatus === 1) {
-			frm.add_custom_button(__("Make Invoice"), function () {
-				open_payment_dialog(frm);
-			}).addClass("btn-primary");
+		if (frm.doc.docstatus === 1) {
+			if (frm.doc.status === "Booked") {
+				frm.add_custom_button(
+					__("Start Service"),
+					async function () {
+						await set_server_status(frm, "In Progress");
+					},
+					__("Status"),
+				);
+			}
+
+			if (["Booked", "In Progress"].includes(frm.doc.status)) {
+				frm.add_custom_button(
+					__("Mark No Show"),
+					async function () {
+						await set_server_status(frm, "No Show");
+					},
+					__("Status"),
+				);
+			}
+
+			if (!frm.doc.sales_invoice && frm.doc.status !== "Cancelled") {
+				frm.add_custom_button(__("Create & Pay Invoice"), function () {
+					open_payment_dialog(frm);
+				}).addClass("btn-primary");
+			}
 		}
 	},
 });
+
+async function set_server_status(frm, target_status) {
+	frappe.dom.freeze(__("Updating status..."));
+	try {
+		await frappe.call({
+			method: "update_appointment_status",
+			doc: frm.doc,
+			args: {
+				target_status: target_status,
+			},
+		});
+		await frm.reload_doc();
+		frappe.show_alert({
+			message: __("Status updated to {0}", [target_status]),
+			indicator: "green",
+		});
+	} catch (error) {
+		frappe.msgprint({
+			title: __("Status Update Failed"),
+			indicator: "red",
+			message: error.message || __("Could not update status."),
+		});
+	} finally {
+		frappe.dom.unfreeze();
+	}
+}
 
 function open_payment_dialog(frm) {
 	let d = new frappe.ui.Dialog({

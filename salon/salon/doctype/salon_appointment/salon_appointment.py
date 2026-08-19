@@ -42,6 +42,7 @@ class SalonAppointment(Document):
 		self.total_amount = total_amt
 
 	def on_cancel(self):
+		self.update_appointment_status("Cancelled")
 		self.cancel_sales_invoice()
 
 	def cancel_sales_invoice(self):
@@ -50,6 +51,24 @@ class SalonAppointment(Document):
 			if si.docstatus == 1:
 				si.cancel()
 			self.db_set("sales_invoice", None)
+
+	@frappe.whitelist()
+	def update_appointment_status(self, target_status):
+		ALLOWED_TRANSITIONS = {
+			"Booked": ["In Progress", "Cancelled", "No Show"],
+			"In Progress": ["Completed", "Cancelled", "No Show"],
+			"Completed": ["Cancelled"],
+			"Cancelled": [],
+			"No Show": ["Booked", "Cancelled"],
+		}
+
+		current_status = self.status or "Booked"
+
+		if target_status not in ALLOWED_TRANSITIONS.get(current_status, []):
+			frappe.throw(f"Cannot transition status from '{current_status}' to '{target_status}'.")
+
+		self.db_set("status", target_status)
+		return self.status
 
 	@frappe.whitelist()
 	def make_sales_invoice(self, mode_of_payment, paid_amount=None):
