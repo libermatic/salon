@@ -5,37 +5,30 @@ frappe.ui.form.on("Salon Appointment", {
 	refresh(frm) {
 		if (frm.doc.docstatus === 1) {
 			if (frm.doc.status === "Booked") {
-				frm.add_custom_button(
-					__("Start Service"),
-					async function () {
-						await set_server_status(frm, "In Progress");
-					},
-					__("Status"),
-				);
+				frm.add_custom_button(__("Start Service"), async function () {
+					await set_server_status(frm, "In Progress");
+				});
+			}
+			if (frm.doc.status === "In Progress" && frm.doc.sales_invoice) {
+				frm.add_custom_button(__("Complete Service"), async function () {
+					await set_server_status(frm, "Completed");
+				});
 			}
 
 			if (["Booked", "In Progress"].includes(frm.doc.status)) {
-				frm.add_custom_button(
-					__("Mark No Show"),
-					async function () {
-						await set_server_status(frm, "No Show");
-					},
-					__("Status"),
-				);
+				frm.add_custom_button(__("Mark No Show"), async function () {
+					await set_server_status(frm, "No Show");
+				});
 			}
 
 			if (frm.doc.status === "No Show") {
-				frm.add_custom_button(
-					__("Reschedule"),
-					async function () {
+				frm.add_custom_button(__("Reschedule"), async function () {
 						await handle_reschedule(frm);
-					},
-					__("Status"),
-				).addClass("btn-warning");
+				});
 			}
 
 			if (!frm.doc.sales_invoice && frm.doc.status !== "Cancelled") {
-				frm.add_custom_button(__("Create & Pay Invoice"), function () {
+				frm.add_custom_button(__("Create Invoice"), function () {
 					open_payment_dialog(frm);
 				}).addClass("btn-primary");
 			}

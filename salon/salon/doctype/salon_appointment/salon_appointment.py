@@ -91,6 +91,9 @@ class SalonAppointment(Document):
 		if target_status == "Completed":
 			self.validate_stylist_assignment()
 
+			if not self.sales_invoice:
+				frappe.throw("Please create a Sales Invoice before completing the appointment.")
+
 		self.db_set("status", target_status)
 
 		if target_status == "Completed":
