@@ -31,6 +31,10 @@ frappe.ui.form.on("Salon Appointment", {
 			}
 		}
 	},
+
+	select_slot_btn(frm) {
+		open_slot_picker_dialog(frm);
+	},
 });
 
 async function set_server_status(frm, target_status) {
@@ -112,4 +116,104 @@ function open_payment_dialog(frm) {
 	});
 
 	d.show();
+}
+
+function open_slot_picker_dialog(frm) {
+	let d = new frappe.ui.Dialog({
+		title: __("Select Appointment Slot"),
+		fields: [
+			{
+				label: __("Appointment Date"),
+				fieldname: "appointment_date",
+				fieldtype: "Date",
+				default: frappe.datetime.get_today(),
+				reqd: 1,
+				onchange() {
+					render_slots(d);
+				},
+			},
+			{
+				fieldtype: "HTML",
+				fieldname: "slots_html",
+			},
+		],
+	});
+
+	d.show();
+	render_slots(d);
+}
+
+async function render_slots(dialog) {
+	const date = dialog.get_value("appointment_date");
+	const container = $(dialog.get_field("slots_html").wrapper);
+
+	container.html(
+		`<div class="text-muted text-center p-3">${__("Loading available slots...")}</div>`,
+	);
+
+	try {
+		// Fetch salon operating hours & slot settings
+		const settings = await frappe.db.get_doc("Salon Settings");
+		const startTime = settings.start_time || "09:00:00";
+		const endTime = settings.end_time || "18:00:00";
+		const duration = parseInt(settings.slot_duration) || 30;
+
+		const slots = generate_time_slots(startTime, endTime, duration);
+
+		if (!slots.length) {
+			container.html(
+				`<div class="text-danger text-center p-3">${__("No available slots found for operating hours.")}</div>`,
+			);
+			return;
+		}
+
+		// Render slots as clickable pill buttons
+		let html = `
+            <div class="form-group">
+                <label class="control-label">${__("Available Time Slots")}</label>
+                <div class="slot-container" style="max-height: 250px; overflow-y: auto; padding: 5px; display: flex; gap: 1em; flex-flow: wrap;">
+        `;
+
+		slots.forEach((slot) => {
+			html += `
+                <button type="button" class="btn btn-default btn-sm slot-btn" data-time="${slot}">
+                    ${slot}
+                </button>
+            `;
+		});
+
+		html += `</div></div>`;
+		container.html(html);
+
+		// Bind click event to assign selected slot
+		container.find(".slot-btn").on("click", function () {
+			const selectedTime = $(this).attr("data-time");
+			const fullDatetime = `${date} ${selectedTime}:00`;
+
+			cur_frm.set_value("scheduled_time", fullDatetime);
+			dialog.hide();
+
+			frappe.show_alert({
+				message: __("Scheduled Time set to {0}", [fullDatetime]),
+				indicator: "green",
+			});
+		});
+	} catch (error) {
+		container.html(
+			`<div class="text-danger text-center p-3">${__("Failed to load settings.")}</div>`,
+		);
+	}
+}
+
+function generate_time_slots(start, end, durationMins) {
+	let slots = [];
+	let current = moment(start, "HH:mm:ss");
+	let endTime = moment(end, "HH:mm:ss");
+
+	while (current.clone().add(durationMins, "minutes").isSameOrBefore(endTime)) {
+		slots.push(current.format("HH:mm"));
+		current.add(durationMins, "minutes");
+	}
+
+	return slots;
 }

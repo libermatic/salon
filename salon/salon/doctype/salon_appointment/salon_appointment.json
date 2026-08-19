@@ -9,8 +9,9 @@
   "customer_name",
   "customer_mobile",
   "column_break_hoed",
-  "scheduled_time",
   "status",
+  "scheduled_time",
+  "select_slot_btn",
   "amended_from",
   "services_section",
   "services",
@@ -62,6 +63,7 @@
    "fieldname": "scheduled_time",
    "fieldtype": "Datetime",
    "label": "Scheduled Time",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -69,6 +71,7 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "Booked\nIn Progress\nCompleted\nCancelled\nNo Show",
+   "read_only": 1,
    "reqd": 1
   },
   {
@@ -114,12 +117,18 @@
   {
    "fieldname": "summary_section",
    "fieldtype": "Section Break"
+  },
+  {
+   "depends_on": "eval:doc.docstatus === 0",
+   "fieldname": "select_slot_btn",
+   "fieldtype": "Button",
+   "label": "Select Time Slot"
   }
  ],
  "grid_page_length": 50,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-18 14:38:14.624989",
+ "modified": "2026-08-19 22:42:15.238066",
  "modified_by": "Administrator",
  "module": "Salon",
  "name": "Salon Appointment",
