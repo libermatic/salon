@@ -24,6 +24,16 @@ frappe.ui.form.on("Salon Appointment", {
 				);
 			}
 
+			if (frm.doc.status === "No Show") {
+				frm.add_custom_button(
+					__("Reschedule"),
+					async function () {
+						await handle_reschedule(frm);
+					},
+					__("Status"),
+				).addClass("btn-warning");
+			}
+
 			if (!frm.doc.sales_invoice && frm.doc.status !== "Cancelled") {
 				frm.add_custom_button(__("Create & Pay Invoice"), function () {
 					open_payment_dialog(frm);
@@ -32,8 +42,18 @@ frappe.ui.form.on("Salon Appointment", {
 		}
 	},
 
-	select_slot_btn(frm) {
-		open_slot_picker_dialog(frm);
+	async select_slot_btn(frm) {
+		const selectedDatetime = await pick_time_slot({
+			title: __("Select Appointment Slot"),
+		});
+
+		if (selectedDatetime) {
+			frm.set_value("scheduled_time", selectedDatetime);
+			frappe.show_alert({
+				message: __("Scheduled Time set to {0}", [selectedDatetime]),
+				indicator: "green",
+			});
+		}
 	},
 });
 
@@ -118,32 +138,76 @@ function open_payment_dialog(frm) {
 	d.show();
 }
 
-function open_slot_picker_dialog(frm) {
-	let d = new frappe.ui.Dialog({
-		title: __("Select Appointment Slot"),
-		fields: [
-			{
-				label: __("Appointment Date"),
-				fieldname: "appointment_date",
-				fieldtype: "Date",
-				default: frappe.datetime.get_today(),
-				reqd: 1,
-				onchange() {
-					render_slots(d);
-				},
-			},
-			{
-				fieldtype: "HTML",
-				fieldname: "slots_html",
-			},
-		],
+async function handle_reschedule(frm) {
+	const selectedDatetime = await pick_time_slot({
+		title: __("Reschedule Appointment Slot"),
 	});
 
-	d.show();
-	render_slots(d);
+	if (!selectedDatetime) return;
+
+	frappe.dom.freeze(__("Rescheduling appointment..."));
+	try {
+		await frappe.call({
+			method: "reschedule_appointment",
+			doc: frm.doc,
+			args: {
+				target_time: selectedDatetime,
+			},
+		});
+		await frm.reload_doc();
+		frappe.show_alert({
+			message: __("Appointment rescheduled to {0} and set to Booked.", [selectedDatetime]),
+			indicator: "green",
+		});
+	} catch (error) {
+		frappe.msgprint({
+			title: __("Reschedule Failed"),
+			indicator: "red",
+			message: error.message || __("Could not reschedule appointment."),
+		});
+	} finally {
+		frappe.dom.unfreeze();
+	}
 }
 
-async function render_slots(dialog) {
+function pick_time_slot(opts = {}) {
+	return new Promise((resolve) => {
+		let isResolved = false;
+
+		let d = new frappe.ui.Dialog({
+			title: opts.title || __("Select Time Slot"),
+			fields: [
+				{
+					label: __("Appointment Date"),
+					fieldname: "appointment_date",
+					fieldtype: "Date",
+					default: frappe.datetime.get_today(),
+					reqd: 1,
+					onchange() {
+						render_slots_ui(d, resolve);
+					},
+				},
+				{
+					fieldtype: "HTML",
+					fieldname: "slots_html",
+				},
+			],
+			on_hide() {
+				if (!isResolved) {
+					resolve(null);
+				}
+			},
+		});
+
+		d.show();
+		render_slots_ui(d, (val) => {
+			isResolved = true;
+			resolve(val);
+		});
+	});
+}
+
+async function render_slots_ui(dialog, resolve) {
 	const date = dialog.get_value("appointment_date");
 	const container = $(dialog.get_field("slots_html").wrapper);
 
@@ -152,7 +216,6 @@ async function render_slots(dialog) {
 	);
 
 	try {
-		// Fetch salon operating hours & slot settings
 		const settings = await frappe.db.get_doc("Salon Settings");
 		const startTime = settings.start_time || "09:00:00";
 		const endTime = settings.end_time || "18:00:00";
@@ -167,7 +230,6 @@ async function render_slots(dialog) {
 			return;
 		}
 
-		// Render slots as clickable pill buttons
 		let html = `
             <div class="form-group">
                 <label class="control-label">${__("Available Time Slots")}</label>
@@ -185,18 +247,11 @@ async function render_slots(dialog) {
 		html += `</div></div>`;
 		container.html(html);
 
-		// Bind click event to assign selected slot
 		container.find(".slot-btn").on("click", function () {
 			const selectedTime = $(this).attr("data-time");
 			const fullDatetime = `${date} ${selectedTime}:00`;
-
-			cur_frm.set_value("scheduled_time", fullDatetime);
+			resolve(fullDatetime);
 			dialog.hide();
-
-			frappe.show_alert({
-				message: __("Scheduled Time set to {0}", [fullDatetime]),
-				indicator: "green",
-			});
 		});
 	} catch (error) {
 		container.html(

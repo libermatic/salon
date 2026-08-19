@@ -98,6 +98,16 @@ class SalonAppointment(Document):
 
 		return self.status
 
+	@frappe.whitelist()
+	def reschedule_appointment(self, target_time):
+		if self.status != "No Show":
+			frappe.throw("Rescheduling is only allowed for 'No Show' appointments.")
+
+		self.db_set("scheduled_time", target_time)
+		self.update_appointment_status("Booked")
+
+		return self.status
+
 	def validate_stylist_assignment(self):
 		missing_stylist_rows = []
 		for idx, row in enumerate(self.services, start=1):
