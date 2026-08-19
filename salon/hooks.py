@@ -148,23 +148,23 @@ app_license = "mit"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"salon.tasks.all"
-# 	],
-# 	"daily": [
-# 		"salon.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"salon.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"salon.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"salon.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+	# 	"all": [
+	# 		"salon.tasks.all"
+	# 	],
+	"daily": [
+		"salon.tasks.mark_overdue_appointments_no_show",
+	],
+	# 	"hourly": [
+	# 		"salon.tasks.hourly"
+	# 	],
+	# 	"weekly": [
+	# 		"salon.tasks.weekly"
+	# 	],
+	# 	"monthly": [
+	# 		"salon.tasks.monthly"
+	# 	],
+}
 
 # Testing
 # -------
