@@ -30,6 +30,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "stylist",
    "fieldtype": "Link",
    "in_list_view": 1,
@@ -55,7 +56,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-08-18 13:08:30.543894",
+ "modified": "2026-08-18 14:01:18.865507",
  "modified_by": "Administrator",
  "module": "Salon",
  "name": "Salon Appointment Item",

@@ -30,6 +30,10 @@ class SalonAppointment(Document):
 	# end: auto-generated types
 
 	def validate(self):
+		if not self.services:
+			frappe.throw("Cannot create an appointment without service items.")
+		if not self.status:
+			self.status = "Booked"
 		self.calculate_totals()
 
 	def calculate_totals(self):
@@ -44,6 +48,7 @@ class SalonAppointment(Document):
 	def on_cancel(self):
 		self.update_appointment_status("Cancelled")
 		self.cancel_sales_invoice()
+		self.cancel_additional_salaries()
 
 	def cancel_sales_invoice(self):
 		if self.sales_invoice:
@@ -51,6 +56,22 @@ class SalonAppointment(Document):
 			if si.docstatus == 1:
 				si.cancel()
 			self.db_set("sales_invoice", None)
+
+	def cancel_additional_salaries(self):
+		salaries = frappe.get_all(
+			"Additional Salary",
+			filters={
+				"ref_doctype": self.doctype,
+				"ref_docname": self.name,
+				"docstatus": 1,
+			},
+			pluck="name",
+		)
+
+		for salary_name in salaries:
+			doc = frappe.get_doc("Additional Salary", salary_name)
+			doc.flags.ignore_permissions = True
+			doc.cancel()
 
 	@frappe.whitelist()
 	def update_appointment_status(self, target_status):
@@ -67,8 +88,68 @@ class SalonAppointment(Document):
 		if target_status not in ALLOWED_TRANSITIONS.get(current_status, []):
 			frappe.throw(f"Cannot transition status from '{current_status}' to '{target_status}'.")
 
+		if target_status == "Completed":
+			self.validate_stylist_assignment()
+
 		self.db_set("status", target_status)
+
+		if target_status == "Completed":
+			self.create_stylist_commissions()
+
 		return self.status
+
+	def validate_stylist_assignment(self):
+		missing_stylist_rows = []
+		for idx, row in enumerate(self.services, start=1):
+			if not row.stylist:
+				missing_stylist_rows.append(str(idx))
+
+		if missing_stylist_rows:
+			frappe.throw(
+				f"Please assign a stylist for service row(s): {', '.join(missing_stylist_rows)} before completing the appointment."
+			)
+
+	def create_stylist_commissions(self):
+		settings = frappe.get_single("Salon Settings")
+		salary_component = getattr(settings, "salary_component", None)
+		commission_pct = frappe.utils.flt(getattr(settings, "commission_percentage", 0))  # pyright: ignore[reportAttributeAccessIssue]
+
+		if not salary_component:
+			frappe.throw("Missing Salary Component in Salon Settings")
+
+		if commission_pct <= 0:
+			return
+
+		stylist_totals = {}
+		for row in self.services:
+			if row.stylist and row.rate:
+				stylist_totals[row.stylist] = stylist_totals.get(row.stylist, 0.0) + frappe.utils.flt(  # pyright: ignore[reportAttributeAccessIssue]
+					row.rate
+				)
+
+		for stylist, total_service_amount in stylist_totals.items():
+			commission_amount = total_service_amount * (commission_pct / 100.0)
+
+			if commission_amount <= 0:
+				continue
+
+			company = frappe.db.get_value("Employee", stylist, "company")
+
+			add_sal = frappe.get_doc(
+				{
+					"doctype": "Additional Salary",
+					"employee": stylist,
+					"salary_component": salary_component,
+					"amount": commission_amount,
+					"payroll_date": frappe.utils.getdate(self.scheduled_time),  # pyright: ignore[reportAttributeAccessIssue]
+					"company": company,
+					"overwrite_salary_structure_amount": 0,
+					"ref_doctype": self.doctype,
+					"ref_docname": self.name,
+				}
+			)
+			add_sal.insert(ignore_permissions=True)
+			add_sal.submit()
 
 	@frappe.whitelist()
 	def make_sales_invoice(self, mode_of_payment, paid_amount=None):
