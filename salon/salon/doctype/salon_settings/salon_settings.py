@@ -15,6 +15,7 @@ class SalonSettings(Document):
 		from frappe.types import DF
 
 		commission_percentage: DF.Percent
+		enable_commission: DF.Check
 		end_time: DF.Time | None
 		salary_component: DF.Link | None
 		slot_duration: DF.Int

@@ -124,6 +124,11 @@ class SalonAppointment(Document):
 
 	def create_stylist_commissions(self):
 		settings = frappe.get_single("Salon Settings")
+
+		enable_commission = getattr(settings, "enable_commission", 0)
+		if not enable_commission:
+			return
+
 		salary_component = getattr(settings, "salary_component", None)
 		commission_pct = frappe.utils.flt(getattr(settings, "commission_percentage", 0))  # pyright: ignore[reportAttributeAccessIssue]
 
