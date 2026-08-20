@@ -1,0 +1,145 @@
+{
+ "charts": [],
+ "content": "[{\"id\":\"OKO9jGd2h9\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Salon</span>\",\"col\":12}},{\"id\":\"YoCBwJoUGa\",\"type\":\"paragraph\",\"data\":{\"text\":\"Appointments\",\"col\":12}},{\"id\":\"I40MekaSwn\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"Booked\",\"col\":3}},{\"id\":\"bq0i1FJVMC\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"In Progress\",\"col\":3}},{\"id\":\"BFxetUHS2t\",\"type\":\"shortcut\",\"data\":{\"shortcut_name\":\"No Show\",\"col\":3}},{\"id\":\"LJYteMxQwf\",\"type\":\"spacer\",\"data\":{\"col\":12}},{\"id\":\"Ne2QBd_akG\",\"type\":\"card\",\"data\":{\"card_name\":\"Appointments\",\"col\":4}},{\"id\":\"Hx_6-Se7MZ\",\"type\":\"card\",\"data\":{\"card_name\":\"Documents\",\"col\":4}},{\"id\":\"XpCh54P6rR\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}}]",
+ "creation": "2026-08-20 16:28:50.469893",
+ "custom_blocks": [],
+ "docstatus": 0,
+ "doctype": "Workspace",
+ "for_user": "",
+ "hide_custom": 0,
+ "icon": "primitive-dot",
+ "idx": 0,
+ "indicator_color": "green",
+ "is_hidden": 0,
+ "label": "Salon",
+ "links": [
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Appointments",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Salon Appointment",
+   "link_count": 0,
+   "link_to": "Salon Appointment",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Customer",
+   "link_count": 0,
+   "link_to": "Customer",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Documents",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Item",
+   "link_count": 0,
+   "link_to": "Item",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Employee",
+   "link_count": 0,
+   "link_to": "Employee",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Setup",
+   "link_count": 2,
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Card Break"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Salon Commission Rule",
+   "link_count": 0,
+   "link_to": "Salon Commission Rule",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  },
+  {
+   "hidden": 0,
+   "is_query_report": 0,
+   "label": "Salon Settings",
+   "link_count": 0,
+   "link_to": "Salon Settings",
+   "link_type": "DocType",
+   "onboard": 0,
+   "type": "Link"
+  }
+ ],
+ "modified": "2026-08-20 17:35:44.331661",
+ "modified_by": "Administrator",
+ "module": "Salon",
+ "name": "Salon",
+ "number_cards": [],
+ "owner": "Administrator",
+ "parent_page": "",
+ "public": 1,
+ "quick_lists": [],
+ "roles": [],
+ "sequence_id": 2.0,
+ "shortcuts": [
+  {
+   "color": "Blue",
+   "doc_view": "List",
+   "format": "{}",
+   "label": "Booked",
+   "link_to": "Salon Appointment",
+   "stats_filter": "[[\"Salon Appointment\",\"status\",\"=\",\"Booked\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Orange",
+   "doc_view": "List",
+   "format": "{}",
+   "label": "In Progress",
+   "link_to": "Salon Appointment",
+   "stats_filter": "[[\"Salon Appointment\",\"status\",\"=\",\"In Progress\",false]]",
+   "type": "DocType"
+  },
+  {
+   "color": "Grey",
+   "doc_view": "List",
+   "format": "{}",
+   "label": "No Show",
+   "link_to": "Salon Appointment",
+   "stats_filter": "[[\"Salon Appointment\",\"status\",\"=\",\"No Show\",false]]",
+   "type": "DocType"
+  }
+ ],
+ "title": "Salon"
+}
