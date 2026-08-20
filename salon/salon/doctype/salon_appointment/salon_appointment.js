@@ -23,7 +23,7 @@ frappe.ui.form.on("Salon Appointment", {
 
 			if (frm.doc.status === "No Show") {
 				frm.add_custom_button(__("Reschedule"), async function () {
-						await handle_reschedule(frm);
+					await handle_reschedule(frm);
 				});
 			}
 
