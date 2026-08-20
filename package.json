@@ -1,0 +1,14 @@
+{
+  "name": "salon",
+  "version": "1.0.0",
+  "description": "Salon Management",
+  "main": "salon/public/index.js",
+  "repository": "git@github.com:libermatic/salon.git",
+  "scripts": {
+    "version": "sed -i \"s/__version__.*/__version__ = \\\"$npm_package_version\\\"/\" $npm_package_name/__init__.py; sed -i \"s/__version__ = '.*';/__version__ = '$npm_package_version';/\" $npm_package_name/public/js/version.js; git add -A .",
+    "prerelease": "gen-release-notes > /tmp/${npm_package_name}_release_notes",
+    "release": "gh release create v${npm_package_version} -F /tmp/${npm_package_name}_release_notes"
+  },
+  "author": "libermatic",
+  "license": "MIT"
+}
