@@ -1,6 +1,6 @@
 {
   "name": "salon",
-  "version": "15.0.0",
+  "version": "15.0.1",
   "description": "Salon Management",
   "main": "salon/public/index.js",
   "repository": "git@github.com:libermatic/salon.git",
