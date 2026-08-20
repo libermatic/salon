@@ -1,10 +1,11 @@
 {
  "actions": [],
- "autoname": "format:SA-{YY}-{#####}",
+ "autoname": "naming_series:",
  "creation": "2026-08-06 17:11:35.758982",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
+  "naming_series",
   "customer",
   "customer_name",
   "customer_mobile",
@@ -127,16 +128,24 @@
    "fieldname": "select_slot_btn",
    "fieldtype": "Button",
    "label": "Select Time Slot"
+  },
+  {
+   "default": "SA-.YY.",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "SA-.YY."
   }
  ],
  "grid_page_length": 50,
  "is_submittable": 1,
  "links": [],
- "modified": "2026-08-20 16:07:16.912766",
+ "modified": "2026-08-20 22:17:15.546770",
  "modified_by": "Administrator",
  "module": "Salon",
  "name": "Salon Appointment",
- "naming_rule": "Expression",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {

@@ -1,11 +1,12 @@
 {
  "actions": [],
- "autoname": "format:SCR-{YY}-{#####}",
+ "autoname": "naming_series:",
  "creation": "2026-08-20 12:13:58.822360",
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
   "rules_section",
+  "naming_series",
   "rule_hierarchy_info",
   "rule_section",
   "priority",
@@ -92,15 +93,23 @@
    "fieldname": "rules_section",
    "fieldtype": "Section Break",
    "label": "Rules"
+  },
+  {
+   "default": "SCR-.YY.",
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "hidden": 1,
+   "label": "Naming Series",
+   "options": "SCR-.YY."
   }
  ],
  "grid_page_length": 50,
  "links": [],
- "modified": "2026-08-20 16:01:27.040049",
+ "modified": "2026-08-20 22:19:12.663284",
  "modified_by": "Administrator",
  "module": "Salon",
  "name": "Salon Commission Rule",
- "naming_rule": "Expression",
+ "naming_rule": "By \"Naming Series\" field",
  "owner": "Administrator",
  "permissions": [
   {

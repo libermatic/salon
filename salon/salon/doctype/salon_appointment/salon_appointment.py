@@ -24,6 +24,7 @@ class SalonAppointment(Document):
 		customer: DF.Link
 		customer_mobile: DF.Data | None
 		customer_name: DF.Data | None
+		naming_series: DF.Literal["SA-.YY."]
 		notes: DF.SmallText | None
 		sales_invoice: DF.Link | None
 		scheduled_time: DF.Datetime

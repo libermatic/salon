@@ -17,6 +17,7 @@ class SalonCommissionRule(Document):
 		disabled: DF.Check
 		employee: DF.Link | None
 		item: DF.Link | None
+		naming_series: DF.Literal["SCR-.YY."]
 		priority: DF.Int
 		rate_type: DF.Literal["Percentage", "Flat Amount"]
 		rate_value: DF.Float
