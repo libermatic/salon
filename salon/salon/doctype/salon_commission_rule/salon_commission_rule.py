@@ -44,7 +44,7 @@ def calculate_row_commission(employee: str, item: str, rate: float) -> float:
 			# 2: Specific Item Only
 			# 1: Specific Employee Only
 			# 0: Global Fallback (Wildcard)
-			score = (2 if rule.employee == employee else 0) + (1 if rule.item == item else 0)
+			score = (1 if rule.employee == employee else 0) + (2 if rule.item == item else 0)
 
 			if best_match is None or score > best_match["score"]:
 				best_match = {"rule": rule, "score": score}
