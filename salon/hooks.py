@@ -149,22 +149,20 @@ app_license = "mit"
 # ---------------
 
 scheduler_events = {
-	# 	"all": [
-	# 		"salon.tasks.all"
-	# 	],
 	"daily": [
-		"salon.tasks.mark_overdue_appointments_no_show",
+		"salon.salon.tasks.mark_overdue_appointments_no_show",
 	],
-	# 	"hourly": [
-	# 		"salon.tasks.hourly"
-	# 	],
-	# 	"weekly": [
-	# 		"salon.tasks.weekly"
-	# 	],
-	# 	"monthly": [
-	# 		"salon.tasks.monthly"
-	# 	],
 }
+
+# Fixtures
+# --------
+
+fixtures = [
+	{
+		"doctype": "Custom Field",
+		"filters": {"module": app_name},
+	},
+]
 
 # Testing
 # -------
