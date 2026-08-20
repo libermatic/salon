@@ -265,3 +265,29 @@ function generate_time_slots(start, end, durationMins) {
 
 	return slots;
 }
+
+
+frappe.ui.form.on("Salon Appointment Item", {
+	duration_mins(frm, cdt, cdn) {
+		calculate_totals(frm);
+	},
+	rate(frm, cdt, cdn) {
+		calculate_totals(frm);
+	},
+	services_remove(frm) {
+		calculate_totals(frm);
+	},
+});
+
+function calculate_totals(frm) {
+	let total_dur = 0;
+	let total_amt = 0;
+
+	(frm.doc.services || []).forEach((row) => {
+		total_dur += parseInt(row.duration_mins) || 0;
+		total_amt += flt(row.rate) || 0;
+	});
+
+	frm.set_value("total_duration", total_dur);
+	frm.set_value("total_amount", total_amt);
+}

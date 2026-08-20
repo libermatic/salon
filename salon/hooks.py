@@ -162,6 +162,10 @@ fixtures = [
 		"doctype": "Custom Field",
 		"filters": {"module": app_name},
 	},
+	{
+		"doctype": "Property Setter",
+		"filters": {"module": app_name},
+	},
 ]
 
 # Testing
