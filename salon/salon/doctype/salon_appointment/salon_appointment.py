@@ -4,6 +4,10 @@
 import frappe
 from frappe.model.document import Document
 
+from salon.salon.doctype.salon_commission_rule.salon_commission_rule import (
+	calculate_row_commission,
+)
+
 
 class SalonAppointment(Document):
 	# begin: auto-generated types
@@ -125,30 +129,37 @@ class SalonAppointment(Document):
 	def create_stylist_commissions(self):
 		settings = frappe.get_single("Salon Settings")
 
-		enable_commission = getattr(settings, "enable_commission", 0)
-		if not enable_commission:
+		if not getattr(settings, "enable_commission", 0):
 			return
 
 		salary_component = getattr(settings, "salary_component", None)
-		commission_pct = frappe.utils.flt(getattr(settings, "commission_percentage", 0))  # pyright: ignore[reportAttributeAccessIssue]
-
 		if not salary_component:
 			frappe.throw("Missing Salary Component in Salon Settings")
 
-		if commission_pct <= 0:
-			return
+		stylist_commissions = {}
 
-		stylist_totals = {}
 		for row in self.services:
-			if row.stylist and row.rate:
-				stylist_totals[row.stylist] = stylist_totals.get(row.stylist, 0.0) + frappe.utils.flt(  # pyright: ignore[reportAttributeAccessIssue]
-					row.rate
+			if not row.stylist or not row.item_code:
+				continue
+
+			row_rate = frappe.utils.flt(row.rate)  # pyright: ignore[reportAttributeAccessIssue]
+			if row_rate <= 0:
+				continue
+
+			# Call imported function
+			commission_amount = calculate_row_commission(
+				employee=row.stylist,
+				item=row.item_code,
+				rate=row_rate,
+			)
+
+			if commission_amount > 0:
+				stylist_commissions[row.stylist] = (
+					stylist_commissions.get(row.stylist, 0.0) + commission_amount
 				)
 
-		for stylist, total_service_amount in stylist_totals.items():
-			commission_amount = total_service_amount * (commission_pct / 100.0)
-
-			if commission_amount <= 0:
+		for stylist, total_commission in stylist_commissions.items():
+			if total_commission <= 0:
 				continue
 
 			company = frappe.db.get_value("Employee", stylist, "company")
@@ -158,7 +169,7 @@ class SalonAppointment(Document):
 					"doctype": "Additional Salary",
 					"employee": stylist,
 					"salary_component": salary_component,
-					"amount": commission_amount,
+					"amount": total_commission,
 					"payroll_date": frappe.utils.getdate(self.scheduled_time),  # pyright: ignore[reportAttributeAccessIssue]
 					"company": company,
 					"overwrite_salary_structure_amount": 0,

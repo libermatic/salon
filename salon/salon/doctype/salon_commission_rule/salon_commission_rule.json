@@ -1,0 +1,130 @@
+{
+ "actions": [],
+ "autoname": "format:SCR-{YY}-{#####}",
+ "creation": "2026-08-20 12:13:58.822360",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "rules_section",
+  "rule_hierarchy_info",
+  "rule_section",
+  "priority",
+  "disabled",
+  "column_break_ipmw",
+  "employee",
+  "item",
+  "commission_computation_section",
+  "rate_type",
+  "column_break_qehw",
+  "rate_value"
+ ],
+ "fields": [
+  {
+   "default": "0",
+   "description": "Higher priority rules are evaluated first.",
+   "fieldname": "priority",
+   "fieldtype": "Int",
+   "label": "Priority",
+   "search_index": 1
+  },
+  {
+   "description": "Leave blank to match ANY employee.",
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "description": "Leave blank to match ANY service item.",
+   "fieldname": "item",
+   "fieldtype": "Link",
+   "label": "Service Item",
+   "options": "Item"
+  },
+  {
+   "fieldname": "commission_computation_section",
+   "fieldtype": "Section Break",
+   "label": "Commission Computation"
+  },
+  {
+   "default": "Percentage",
+   "fieldname": "rate_type",
+   "fieldtype": "Select",
+   "label": "Rate Type",
+   "options": "Percentage\nFlat Amount"
+  },
+  {
+   "fieldname": "column_break_qehw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rate_value",
+   "fieldtype": "Float",
+   "label": "Rate Value"
+  },
+  {
+   "default": "0",
+   "fieldname": "disabled",
+   "fieldtype": "Check",
+   "label": "Disabled"
+  },
+  {
+   "fieldname": "rule_section",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "column_break_ipmw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rule_hierarchy_info",
+   "fieldtype": "HTML",
+   "label": "Rule Priority Hierarchy"
+  },
+  {
+   "fieldname": "rules_section",
+   "fieldtype": "Section Break",
+   "label": "Rules"
+  }
+ ],
+ "grid_page_length": 50,
+ "links": [],
+ "modified": "2026-08-20 14:44:59.288874",
+ "modified_by": "Administrator",
+ "module": "Salon",
+ "name": "Salon Commission Rule",
+ "naming_rule": "Expression",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

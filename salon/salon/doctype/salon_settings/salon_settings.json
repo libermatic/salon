@@ -13,8 +13,7 @@
   "commission_section",
   "enable_commission",
   "column_break_ilep",
-  "salary_component",
-  "commission_percentage"
+  "salary_component"
  ],
  "fields": [
   {
@@ -24,13 +23,6 @@
    "label": "Salary Component",
    "mandatory_depends_on": "eval:doc.enable_commission === 1",
    "options": "Salary Component"
-  },
-  {
-   "depends_on": "eval:doc.enable_commission === 1",
-   "fieldname": "commission_percentage",
-   "fieldtype": "Percent",
-   "label": "Commission Percentage",
-   "mandatory_depends_on": "eval:doc.enable_commission === 1"
   },
   {
    "fieldname": "column_break_ilep",
@@ -76,7 +68,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2026-08-20 12:05:44.485142",
+ "modified": "2026-08-20 12:25:04.110072",
  "modified_by": "Administrator",
  "module": "Salon",
  "name": "Salon Settings",
