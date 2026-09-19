@@ -2,6 +2,10 @@
 # For license information, please see license.txt
 
 import frappe
+from erpnext.accounts.doctype.loyalty_program.loyalty_program import (
+	get_loyalty_program_details,
+	get_loyalty_program_details_with_points,
+)
 from frappe.model.document import Document
 
 from salon.salon.doctype.salon_commission_rule.salon_commission_rule import (
@@ -33,6 +37,16 @@ class SalonAppointment(Document):
 		total_amount: DF.Currency
 		total_duration: DF.Int
 	# end: auto-generated types
+
+	def onload(self):
+		if self.docstatus == 1:
+			loyalty_program = frappe.db.get_value("Customer", self.customer, "loyalty_program")
+			self.set_onload(
+				"loyalty_details",
+				get_loyalty_program_details_with_points(self.customer, loyalty_program)
+				if loyalty_program
+				else None,
+			)
 
 	def validate(self):
 		if not self.services:
@@ -182,11 +196,11 @@ class SalonAppointment(Document):
 			add_sal.submit()
 
 	@frappe.whitelist()
-	def make_sales_invoice(self, mode_of_payment, paid_amount=None):
+	def make_sales_invoice(
+		self, redeem_loyalty_points, loyalty_points=None, mode_of_payment=None, paid_amount=None
+	):
 		if self.sales_invoice:
 			frappe.throw(f"Sales Invoice {self.sales_invoice} already exists for this appointment.")
-
-		paid_amount = frappe.utils.flt(paid_amount) or frappe.utils.flt(self.total_amount)  # pyright: ignore[reportAttributeAccessIssue]
 
 		items = []
 		for service in self.services:
@@ -205,18 +219,43 @@ class SalonAppointment(Document):
 				"customer": self.customer,
 				"posting_date": frappe.utils.today(),  # pyright: ignore[reportAttributeAccessIssue]
 				"due_date": frappe.utils.today(),  # pyright: ignore[reportAttributeAccessIssue]
-				"is_pos": 1,
+				"company": frappe.defaults.get_user_default("Company"),  # pyright: ignore[reportAttributeAccessIssue]
+				"selling_price_list": frappe.defaults.get_user_default("Selling Price List"),  # pyright: ignore[reportAttributeAccessIssue]
 				"items": items,
-				"payments": [
-					{
-						"mode_of_payment": mode_of_payment,
-						"amount": paid_amount,
-					}
-				],
 				"remarks": f"Generated from Salon Appointment: {self.name}",
 			}
 		)
 
+		if redeem_loyalty_points and loyalty_points:
+			loyalty_program = frappe.db.get_value("Customer", self.customer, "loyalty_program")
+			loyalty_details = get_loyalty_program_details(self.customer, loyalty_program)
+			si.update(
+				{
+					"redeem_loyalty_points": 1,
+					"loyalty_points": loyalty_points,
+					"loyalty_program": loyalty_program,
+					"loyalty_amount": loyalty_points * loyalty_details.conversion_factor,
+					"loyalty_redemption_account": loyalty_details.expense_account,
+					"loyalty_redemption_cost_center": loyalty_details.cost_center,
+					"is_pos": 0,
+					"payments": [],
+				}
+			)
+		else:
+			si.update(
+				{
+					"is_pos": 1,
+					"payments": [
+						{
+							"mode_of_payment": mode_of_payment,
+							"amount": frappe.utils.flt(paid_amount),  # pyright: ignore[reportAttributeAccessIssue],
+						}
+					],
+				}
+			)
+
+		si.run_method("set_missing_values")
+		si.run_method("calculate_taxes_and_totals")
 		si.insert(ignore_permissions=True)
 		si.submit()
 

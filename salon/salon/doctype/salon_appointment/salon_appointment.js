@@ -77,22 +77,54 @@ async function set_server_status(frm, target_status) {
 }
 
 function open_payment_dialog(frm) {
+	const { loyalty_details } = frm.doc.__onload;
 	let d = new frappe.ui.Dialog({
 		title: __("Payment Details"),
 		fields: [
+			{
+				label: __("Redeem Loyalty Points"),
+				fieldname: "redeem_loyalty_points",
+				fieldtype: "Check",
+				default: !!loyalty_details,
+			},
+			{
+				label: __("Available Amount"),
+				fieldname: "available_amount",
+				fieldtype: "Currency",
+				default: loyalty_details
+					? loyalty_details.conversion_factor * loyalty_details.loyalty_points
+					: 0,
+				read_only: 1,
+				depends_on: "eval:doc.redeem_loyalty_points",
+			},
+			{
+				label: __("Loyalty Points"),
+				fieldname: "loyalty_points",
+				fieldtype: "Int",
+				default: loyalty_details
+					? frm.doc.total_amount / loyalty_details.conversion_factor
+					: 0,
+				depends_on: "eval:doc.redeem_loyalty_points",
+				onchange() {
+					const loyalty_points = d.get_value("loyalty_points") || 0;
+					d.set_value("paid_amount", loyalty_details.conversion_factor * loyalty_points);
+				},
+			},
 			{
 				label: __("Mode of Payment"),
 				fieldname: "mode_of_payment",
 				fieldtype: "Link",
 				options: "Mode of Payment",
-				reqd: 1,
+				depends_on: "eval:!doc.redeem_loyalty_points",
+				mandatory_depends_on: "eval:!doc.redeem_loyalty_points",
 			},
 			{
 				label: __("Amount Paid"),
 				fieldname: "paid_amount",
 				fieldtype: "Currency",
 				default: frm.doc.total_amount || 0,
-				reqd: 1,
+				read_only_depends_on: "eval:doc.redeem_loyalty_points",
+				mandatory_depends_on: "eval:!doc.redeem_loyalty_points",
 			},
 		],
 		primary_action_label: __("Submit"),
@@ -106,6 +138,8 @@ function open_payment_dialog(frm) {
 					method: "make_sales_invoice",
 					doc: frm.doc,
 					args: {
+						redeem_loyalty_points: values.redeem_loyalty_points,
+						loyalty_points: values.loyalty_points,
 						mode_of_payment: values.mode_of_payment,
 						paid_amount: values.paid_amount,
 					},
@@ -265,7 +299,6 @@ function generate_time_slots(start, end, durationMins) {
 
 	return slots;
 }
-
 
 frappe.ui.form.on("Salon Appointment Item", {
 	async item_code(frm, cdt, cdn) {
