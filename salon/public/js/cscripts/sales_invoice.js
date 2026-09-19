@@ -8,7 +8,6 @@ export const sales_invoice = {
 				args: {
 					customer: customer,
 					loyalty_program: loyalty_program,
-					expiry_date: frm.doc.posting_date,
 					silent: true,
 				},
 			});
