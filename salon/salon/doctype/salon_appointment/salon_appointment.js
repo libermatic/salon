@@ -268,6 +268,11 @@ function generate_time_slots(start, end, durationMins) {
 
 
 frappe.ui.form.on("Salon Appointment Item", {
+	async item_code(frm, cdt, cdn) {
+		const { item_code } = frappe.get_doc(cdt, cdn);
+		const { message = {} } = await frappe.db.get_value("Item", item_code, "standard_rate");
+		frappe.model.set_value(cdt, cdn, "rate", message.standard_rate);
+	},
 	duration_mins(frm, cdt, cdn) {
 		calculate_totals(frm);
 	},
